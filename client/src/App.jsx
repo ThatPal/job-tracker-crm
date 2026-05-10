@@ -1,3 +1,5 @@
+import { JOB_STATUSES } from "./constants/jobConstants";
+
 import { useEffect, useState } from "react";
 
 import JobForm from "./components/JobForm";
@@ -131,14 +133,9 @@ function App() {
 
             <select value={statusFilter} onChange={handleStatusChange}>
               <option>All</option>
-              <option>New</option>
-              <option>Measured</option>
-              <option>Designed</option>
-              <option>Estimated</option>
-              <option>Approved</option>
-              <option>Ordered</option>
-              <option>Delivered</option>
-              <option>Closed</option>
+              {JOB_STATUSES.map((status) => (
+                <option key={status}>{status}</option>
+              ))}
             </select>
           </div>
 

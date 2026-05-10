@@ -1,3 +1,5 @@
+import { JOB_STATUSES } from "../constants/jobConstants";
+
 import { useEffect, useState } from "react";
 
 const emptyForm = {
@@ -99,14 +101,9 @@ function JobForm({ onCreateJob, onUpdateJob, selectedJob, onCancelEdit }) {
       <div className="form-group">
         <label>Status</label>
         <select name="status" value={formData.status} onChange={handleChange}>
-          <option>New</option>
-          <option>Measured</option>
-          <option>Designed</option>
-          <option>Estimated</option>
-          <option>Approved</option>
-          <option>Ordered</option>
-          <option>Delivered</option>
-          <option>Closed</option>
+          {JOB_STATUSES.map((status) => (
+            <option key={status}>{status}</option>
+          ))}
         </select>
       </div>
 

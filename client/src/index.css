@@ -216,3 +216,46 @@ body {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.empty-state {
+  padding: 24px;
+  text-align: center;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+  color: #6b7280;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+  color: #111827;
+}
+
+.job-info {
+  flex: 1;
+}
+
+.job-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.job-address {
+  font-weight: 500;
+}
+
+.job-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.job-notes {
+  margin-top: 12px;
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
