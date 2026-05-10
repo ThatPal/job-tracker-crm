@@ -73,3 +73,11 @@
   font-size: 13px;
   font-weight: bold;
 }
+
+.error-message {
+  padding: 12px;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 8px;
+  font-weight: bold;
+}
