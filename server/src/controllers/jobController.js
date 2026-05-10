@@ -1,21 +1,25 @@
 const Job = require("../models/jobModel");
 
 // GET /api/jobs
-// Supports optional search and status filters.
-// Example: /api/jobs?search=john&status=New
+// Supports search, status filter, pagination, and sorting.
+// Example: /api/jobs?search=john&status=New&page=1&limit=5&sortBy=createdAt&sortOrder=desc
 const getJobs = async (req, res, next) => {
   try {
-    const { search, status } = req.query;
+    const {
+      search,
+      status,
+      page = 1,
+      limit = 5,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+    } = req.query;
 
-    // query will hold our MongoDB search conditions.
     const query = {};
 
-    // If status is provided and not "All", filter by exact status.
     if (status && status !== "All") {
       query.status = status;
     }
 
-    // If search text is provided, search multiple text fields.
     if (search) {
       query.$or = [
         { customerName: { $regex: search, $options: "i" } },
@@ -25,11 +29,25 @@ const getJobs = async (req, res, next) => {
       ];
     }
 
-    const jobs = await Job.find(query).sort({ createdAt: -1 });
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const sortDirection = sortOrder === "asc" ? 1 : -1;
+
+    const totalJobs = await Job.countDocuments(query);
+
+    const jobs = await Job.find(query)
+      .sort({ [sortBy]: sortDirection })
+      .skip(skip)
+      .limit(limitNumber);
 
     res.status(200).json({
       success: true,
       count: jobs.length,
+      total: totalJobs,
+      page: pageNumber,
+      pages: Math.ceil(totalJobs / limitNumber),
       data: jobs,
     });
   } catch (error) {

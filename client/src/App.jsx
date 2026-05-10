@@ -18,6 +18,13 @@ function App() {
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [totalJobs, setTotalJobs] = useState(0);
+
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
+
   const loadJobs = async () => {
     try {
       setLoading(true);
@@ -26,9 +33,15 @@ function App() {
       const result = await getJobs({
         search: searchText,
         status: statusFilter,
+        page,
+        limit: 5,
+        sortBy,
+        sortOrder,
       });
 
       setJobs(result.data);
+      setPages(result.pages);
+      setTotalJobs(result.total);
     } catch (error) {
       setErrorMessage("Could not load jobs from the server.");
     } finally {
@@ -36,16 +49,26 @@ function App() {
     }
   };
 
-  // Reload jobs whenever search or status changes.
   useEffect(() => {
     loadJobs();
-  }, [searchText, statusFilter]);
+  }, [searchText, statusFilter, page, sortBy, sortOrder]);
+
+  const handleSearchChange = (event) => {
+    setSearchText(event.target.value);
+    setPage(1);
+  };
+
+  const handleStatusChange = (event) => {
+    setStatusFilter(event.target.value);
+    setPage(1);
+  };
 
   const handleCreateJob = async (jobData) => {
     try {
       setErrorMessage("");
 
       await createJob(jobData);
+      setPage(1);
       await loadJobs();
     } catch (error) {
       setErrorMessage("Could not create job. Please check the form.");
@@ -79,6 +102,14 @@ function App() {
     }
   };
 
+  const goToPreviousPage = () => {
+    setPage((currentPage) => Math.max(currentPage - 1, 1));
+  };
+
+  const goToNextPage = () => {
+    setPage((currentPage) => Math.min(currentPage + 1, pages));
+  };
+
   return (
     <div className="app-container">
       <header className="app-header">
@@ -94,14 +125,11 @@ function App() {
             <input
               type="text"
               value={searchText}
-              onChange={(event) => setSearchText(event.target.value)}
+              onChange={handleSearchChange}
               placeholder="Search by name, address, phone, or email"
             />
 
-            <select
-              value={statusFilter}
-              onChange={(event) => setStatusFilter(event.target.value)}
-            >
+            <select value={statusFilter} onChange={handleStatusChange}>
               <option>All</option>
               <option>New</option>
               <option>Measured</option>
@@ -114,18 +142,72 @@ function App() {
             </select>
           </div>
 
-          <p className="result-count">Showing {jobs.length} jobs</p>
+          <div className="filters-row">
+            <select
+              value={sortBy}
+              onChange={(event) => {
+                setSortBy(event.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="createdAt">Created Date</option>
+              <option value="customerName">Customer Name</option>
+              <option value="status">Status</option>
+              <option value="propertyAddress">Property Address</option>
+            </select>
+
+            <select
+              value={sortOrder}
+              onChange={(event) => {
+                setSortOrder(event.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="desc">Descending</option>
+              <option value="asc">Ascending</option>
+            </select>
+          </div>
+
+          <p className="result-count">
+            Showing {jobs.length} of {totalJobs} jobs
+          </p>
 
           {loading && <p>Loading jobs...</p>}
 
           {errorMessage && <p className="error-message">{errorMessage}</p>}
 
           {!loading && (
-            <JobList
-              jobs={jobs}
-              onEditJob={setSelectedJob}
-              onDeleteJob={handleDeleteJob}
-            />
+            <>
+              <JobList
+                jobs={jobs}
+                onEditJob={setSelectedJob}
+                onDeleteJob={handleDeleteJob}
+              />
+
+              <div className="pagination-row">
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={goToPreviousPage}
+                  disabled={page === 1}
+                >
+                  Previous
+                </button>
+
+                <span>
+                  Page {page} of {pages}
+                </span>
+
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={goToNextPage}
+                  disabled={page === pages}
+                >
+                  Next
+                </button>
+              </div>
+            </>
           )}
         </section>
 
