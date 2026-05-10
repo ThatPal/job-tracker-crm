@@ -1,31 +1,33 @@
-// Load environment variables from the .env file.
+// Load environment variables from .env.
 require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
 
+const connectDB = require("./config/db");
 const healthRoutes = require("./routes/healthRoutes");
+const jobRoutes = require("./routes/jobRoutes");
 
-// Create the Express application.
+// Connect to MongoDB before starting the API routes.
+connectDB();
+
 const app = express();
 
-// PORT comes from .env. If not found, use 5000.
 const PORT = process.env.PORT || 5000;
 
-// Middleware allows Express to process incoming requests.
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Basic root route.
+// Root test route
 app.get("/", (req, res) => {
   res.send("Job Tracker CRM API is running.");
 });
 
-// Health check route.
-// Full URL will be: http://localhost:5000/api/health
+// Routes
 app.use("/api/health", healthRoutes);
+app.use("/api/jobs", jobRoutes);
 
-// Start the server.
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
