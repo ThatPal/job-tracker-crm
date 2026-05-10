@@ -1,8 +1,7 @@
 const Job = require("../models/jobModel");
 
 // GET /api/jobs
-// Returns all jobs, newest first.
-const getJobs = async (req, res) => {
+const getJobs = async (req, res, next) => {
   try {
     const jobs = await Job.find().sort({ createdAt: -1 });
 
@@ -12,17 +11,12 @@ const getJobs = async (req, res) => {
       data: jobs,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch jobs.",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
 // POST /api/jobs
-// Creates a new job.
-const createJob = async (req, res) => {
+const createJob = async (req, res, next) => {
   try {
     const job = await Job.create(req.body);
 
@@ -32,25 +26,19 @@ const createJob = async (req, res) => {
       data: job,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: "Failed to create job.",
-      error: error.message,
-    });
+    res.status(400);
+    next(error);
   }
 };
 
 // GET /api/jobs/:id
-// Returns one job by MongoDB ID.
-const getJobById = async (req, res) => {
+const getJobById = async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.id);
 
     if (!job) {
-      return res.status(404).json({
-        success: false,
-        message: "Job not found.",
-      });
+      res.status(404);
+      throw new Error("Job not found.");
     }
 
     res.status(200).json({
@@ -58,17 +46,12 @@ const getJobById = async (req, res) => {
       data: job,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch job.",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
 // PUT /api/jobs/:id
-// Updates one job by MongoDB ID.
-const updateJob = async (req, res) => {
+const updateJob = async (req, res, next) => {
   try {
     const job = await Job.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -76,10 +59,8 @@ const updateJob = async (req, res) => {
     });
 
     if (!job) {
-      return res.status(404).json({
-        success: false,
-        message: "Job not found.",
-      });
+      res.status(404);
+      throw new Error("Job not found.");
     }
 
     res.status(200).json({
@@ -88,25 +69,19 @@ const updateJob = async (req, res) => {
       data: job,
     });
   } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: "Failed to update job.",
-      error: error.message,
-    });
+    res.status(res.statusCode === 200 ? 400 : res.statusCode);
+    next(error);
   }
 };
 
 // DELETE /api/jobs/:id
-// Deletes one job by MongoDB ID.
-const deleteJob = async (req, res) => {
+const deleteJob = async (req, res, next) => {
   try {
     const job = await Job.findByIdAndDelete(req.params.id);
 
     if (!job) {
-      return res.status(404).json({
-        success: false,
-        message: "Job not found.",
-      });
+      res.status(404);
+      throw new Error("Job not found.");
     }
 
     res.status(200).json({
@@ -114,11 +89,7 @@ const deleteJob = async (req, res) => {
       message: "Job deleted successfully.",
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete job.",
-      error: error.message,
-    });
+    next(error);
   }
 };
 
