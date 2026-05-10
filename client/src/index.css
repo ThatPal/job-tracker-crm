@@ -173,3 +173,33 @@ body {
 .danger-button:hover {
   background: #b91c1c;
 }
+
+.filters-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.filters-row input,
+.filters-row select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.filters-row input {
+  flex: 1;
+}
+
+.result-count {
+  margin: 0 0 16px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .filters-row {
+    flex-direction: column;
+  }
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import JobForm from "./components/JobForm";
 import JobList from "./components/JobList";
@@ -15,13 +15,15 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+
   const loadJobs = async () => {
     try {
       setLoading(true);
       setErrorMessage("");
 
       const result = await getJobs();
-
       setJobs(result.data);
     } catch (error) {
       setErrorMessage("Could not load jobs from the server.");
@@ -33,6 +35,23 @@ function App() {
   useEffect(() => {
     loadJobs();
   }, []);
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      const search = searchText.toLowerCase();
+
+      const matchesSearch =
+        job.customerName?.toLowerCase().includes(search) ||
+        job.propertyAddress?.toLowerCase().includes(search) ||
+        job.phone?.toLowerCase().includes(search) ||
+        job.email?.toLowerCase().includes(search);
+
+      const matchesStatus =
+        statusFilter === "All" || job.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [jobs, searchText, statusFilter]);
 
   const handleCreateJob = async (jobData) => {
     try {
@@ -60,9 +79,7 @@ function App() {
   const handleDeleteJob = async (jobId) => {
     const confirmed = window.confirm("Are you sure you want to delete this job?");
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       setErrorMessage("");
@@ -85,13 +102,41 @@ function App() {
         <section className="card">
           <h2>Jobs</h2>
 
+          <div className="filters-row">
+            <input
+              type="text"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              placeholder="Search by name, address, phone, or email"
+            />
+
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+            >
+              <option>All</option>
+              <option>New</option>
+              <option>Measured</option>
+              <option>Designed</option>
+              <option>Estimated</option>
+              <option>Approved</option>
+              <option>Ordered</option>
+              <option>Delivered</option>
+              <option>Closed</option>
+            </select>
+          </div>
+
+          <p className="result-count">
+            Showing {filteredJobs.length} of {jobs.length} jobs
+          </p>
+
           {loading && <p>Loading jobs...</p>}
 
           {errorMessage && <p className="error-message">{errorMessage}</p>}
 
           {!loading && (
             <JobList
-              jobs={jobs}
+              jobs={filteredJobs}
               onEditJob={setSelectedJob}
               onDeleteJob={handleDeleteJob}
             />
