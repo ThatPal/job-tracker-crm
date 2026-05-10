@@ -2,8 +2,13 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000/api/jobs";
 
-export const getJobs = async () => {
-  const response = await axios.get(API_URL);
+// Get all jobs from the backend.
+// Optional filters can be passed as query parameters.
+export const getJobs = async (filters = {}) => {
+  const response = await axios.get(API_URL, {
+    params: filters,
+  });
+
   return response.data;
 };
 

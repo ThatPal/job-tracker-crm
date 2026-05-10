@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import JobForm from "./components/JobForm";
 import JobList from "./components/JobList";
@@ -23,7 +23,11 @@ function App() {
       setLoading(true);
       setErrorMessage("");
 
-      const result = await getJobs();
+      const result = await getJobs({
+        search: searchText,
+        status: statusFilter,
+      });
+
       setJobs(result.data);
     } catch (error) {
       setErrorMessage("Could not load jobs from the server.");
@@ -32,26 +36,10 @@ function App() {
     }
   };
 
+  // Reload jobs whenever search or status changes.
   useEffect(() => {
     loadJobs();
-  }, []);
-
-  const filteredJobs = useMemo(() => {
-    return jobs.filter((job) => {
-      const search = searchText.toLowerCase();
-
-      const matchesSearch =
-        job.customerName?.toLowerCase().includes(search) ||
-        job.propertyAddress?.toLowerCase().includes(search) ||
-        job.phone?.toLowerCase().includes(search) ||
-        job.email?.toLowerCase().includes(search);
-
-      const matchesStatus =
-        statusFilter === "All" || job.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [jobs, searchText, statusFilter]);
+  }, [searchText, statusFilter]);
 
   const handleCreateJob = async (jobData) => {
     try {
@@ -126,9 +114,7 @@ function App() {
             </select>
           </div>
 
-          <p className="result-count">
-            Showing {filteredJobs.length} of {jobs.length} jobs
-          </p>
+          <p className="result-count">Showing {jobs.length} jobs</p>
 
           {loading && <p>Loading jobs...</p>}
 
@@ -136,7 +122,7 @@ function App() {
 
           {!loading && (
             <JobList
-              jobs={filteredJobs}
+              jobs={jobs}
               onEditJob={setSelectedJob}
               onDeleteJob={handleDeleteJob}
             />

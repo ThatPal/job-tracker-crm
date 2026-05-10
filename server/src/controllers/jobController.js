@@ -1,9 +1,31 @@
 const Job = require("../models/jobModel");
 
 // GET /api/jobs
+// Supports optional search and status filters.
+// Example: /api/jobs?search=john&status=New
 const getJobs = async (req, res, next) => {
   try {
-    const jobs = await Job.find().sort({ createdAt: -1 });
+    const { search, status } = req.query;
+
+    // query will hold our MongoDB search conditions.
+    const query = {};
+
+    // If status is provided and not "All", filter by exact status.
+    if (status && status !== "All") {
+      query.status = status;
+    }
+
+    // If search text is provided, search multiple text fields.
+    if (search) {
+      query.$or = [
+        { customerName: { $regex: search, $options: "i" } },
+        { propertyAddress: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const jobs = await Job.find(query).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
