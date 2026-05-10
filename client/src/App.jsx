@@ -2,17 +2,19 @@ import { useEffect, useState } from "react";
 
 import JobForm from "./components/JobForm";
 import JobList from "./components/JobList";
-import { createJob, getJobs } from "./services/jobService";
-
-// App.jsx is the main React component.
-// It loads jobs from the backend and passes data into child components.
+import {
+  createJob,
+  deleteJob,
+  getJobs,
+  updateJob,
+} from "./services/jobService";
 
 function App() {
   const [jobs, setJobs] = useState([]);
+  const [selectedJob, setSelectedJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Loads jobs from the backend API.
   const loadJobs = async () => {
     try {
       setLoading(true);
@@ -28,12 +30,10 @@ function App() {
     }
   };
 
-  // Runs once when the app first opens.
   useEffect(() => {
     loadJobs();
   }, []);
 
-  // Creates a new job and refreshes the job list.
   const handleCreateJob = async (jobData) => {
     try {
       setErrorMessage("");
@@ -42,6 +42,35 @@ function App() {
       await loadJobs();
     } catch (error) {
       setErrorMessage("Could not create job. Please check the form.");
+    }
+  };
+
+  const handleUpdateJob = async (jobId, jobData) => {
+    try {
+      setErrorMessage("");
+
+      await updateJob(jobId, jobData);
+      setSelectedJob(null);
+      await loadJobs();
+    } catch (error) {
+      setErrorMessage("Could not update job.");
+    }
+  };
+
+  const handleDeleteJob = async (jobId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this job?");
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setErrorMessage("");
+
+      await deleteJob(jobId);
+      await loadJobs();
+    } catch (error) {
+      setErrorMessage("Could not delete job.");
     }
   };
 
@@ -60,12 +89,24 @@ function App() {
 
           {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-          {!loading && <JobList jobs={jobs} />}
+          {!loading && (
+            <JobList
+              jobs={jobs}
+              onEditJob={setSelectedJob}
+              onDeleteJob={handleDeleteJob}
+            />
+          )}
         </section>
 
         <section className="card">
-          <h2>Add New Job</h2>
-          <JobForm onCreateJob={handleCreateJob} />
+          <h2>{selectedJob ? "Edit Job" : "Add New Job"}</h2>
+
+          <JobForm
+            onCreateJob={handleCreateJob}
+            onUpdateJob={handleUpdateJob}
+            selectedJob={selectedJob}
+            onCancelEdit={() => setSelectedJob(null)}
+          />
         </section>
       </main>
     </div>

@@ -1,19 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-// This component displays the form for creating a new job.
-// It stores the form values in React state and sends them to the backend.
+const emptyForm = {
+  customerName: "",
+  phone: "",
+  email: "",
+  propertyAddress: "",
+  status: "New",
+  notes: "",
+};
 
-function JobForm({ onCreateJob }) {
-  const [formData, setFormData] = useState({
-    customerName: "",
-    phone: "",
-    email: "",
-    propertyAddress: "",
-    status: "New",
-    notes: "",
-  });
+function JobForm({ onCreateJob, onUpdateJob, selectedJob, onCancelEdit }) {
+  const [formData, setFormData] = useState(emptyForm);
 
-  // Updates the matching field in formData whenever the user types.
+  useEffect(() => {
+    if (selectedJob) {
+      setFormData({
+        customerName: selectedJob.customerName || "",
+        phone: selectedJob.phone || "",
+        email: selectedJob.email || "",
+        propertyAddress: selectedJob.propertyAddress || "",
+        status: selectedJob.status || "New",
+        notes: selectedJob.notes || "",
+      });
+    } else {
+      setFormData(emptyForm);
+    }
+  }, [selectedJob]);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -23,20 +36,16 @@ function JobForm({ onCreateJob }) {
     }));
   };
 
-  // Sends the form data to App.jsx when submitted.
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    onCreateJob(formData);
+    if (selectedJob) {
+      onUpdateJob(selectedJob._id, formData);
+    } else {
+      onCreateJob(formData);
+    }
 
-    setFormData({
-      customerName: "",
-      phone: "",
-      email: "",
-      propertyAddress: "",
-      status: "New",
-      notes: "",
-    });
+    setFormData(emptyForm);
   };
 
   return (
@@ -113,8 +122,14 @@ function JobForm({ onCreateJob }) {
       </div>
 
       <button type="submit" className="primary-button">
-        Add Job
+        {selectedJob ? "Update Job" : "Add Job"}
       </button>
+
+      {selectedJob && (
+        <button type="button" className="secondary-button" onClick={onCancelEdit}>
+          Cancel Edit
+        </button>
+      )}
     </form>
   );
 }
