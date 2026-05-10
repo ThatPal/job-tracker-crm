@@ -1,6 +1,8 @@
+import JobForm from "./components/JobForm";
+import JobList from "./components/JobList";
+
 // App.jsx is the main React component for our frontend.
-// For now, we are only creating the layout.
-// Later, this page will connect to the backend API.
+// It combines the job list and job form into one page.
 
 function App() {
   return (
@@ -13,12 +15,12 @@ function App() {
       <main className="main-content">
         <section className="card">
           <h2>Jobs</h2>
-          <p>The job list will appear here.</p>
+          <JobList />
         </section>
 
         <section className="card">
           <h2>Add New Job</h2>
-          <p>The job form will appear here.</p>
+          <JobForm />
         </section>
       </main>
     </div>

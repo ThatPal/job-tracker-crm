@@ -1,58 +1,75 @@
-/* Basic page reset */
-* {
-  box-sizing: border-box;
+/* Form layout */
+.job-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f4f6f8;
-  color: #1f2937;
+/* A form group keeps label and input together */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* Main app wrapper */
-.app-container {
-  min-height: 100vh;
+.form-group label {
+  font-weight: bold;
+  font-size: 14px;
 }
 
-/* Top page header */
-.app-header {
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Main action button */
+.primary-button {
+  padding: 12px 16px;
   background: #111827;
   color: white;
-  padding: 32px;
-  text-align: center;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-.app-header h1 {
+.primary-button:hover {
+  background: #374151;
+}
+
+/* Job list layout */
+.job-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.job-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.job-item h3 {
   margin: 0 0 8px;
 }
 
-.app-header p {
-  margin: 0;
-  color: #d1d5db;
+.job-item p {
+  margin: 4px 0;
+  color: #4b5563;
 }
 
-/* Main content layout */
-.main-content {
-  max-width: 1100px;
-  margin: 32px auto;
-  padding: 0 20px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-/* Reusable card style */
-.card {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-/* Mobile layout */
-@media (max-width: 768px) {
-  .main-content {
-    grid-template-columns: 1fr;
-  }
+.status-badge {
+  align-self: flex-start;
+  padding: 6px 10px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
 }
